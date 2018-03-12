@@ -1,0 +1,50 @@
+docker run --name cassandra1 -m 2g -d --net="host" cassandra
+docker inspect --format='{{ .NetworkSettings.IPAddress }}' cassandra1
+docker run --name cassandra2 -m 2g -d -e CASSANDRA_SEEDS="$(docker inspect --format='{{ .NetworkSettings.IPAddress }}' cassandra1)" cassandra
+docker exec -i -t cassandra1 sh -c 'nodetool status'
+docker pull cturra/ntp
+docker run --name=ntp --restart=on-failure:2 --detach=true --publish=123:123/udp --cap-add=SYS_NICE --cap-add=SYS_RESOURCE --cap-add=SYS_TIME cturra/ntp
+docker inspect --format='{{ .NetworkSettings.IPAddress }}' ntp
+	(grab the ip address 172.17.0.4)
+
+docker exec -it cassandra1 bash
+apt update
+apt install nano
+apt install ntp
+nano /etc/ntp.conf
+service ntp start
+ntpq -p
+exit
+
+docker exec -it cassandra2 bash
+apt update
+apt install nano
+apt install ntp
+nano /etc/ntp.conf
+service ntp start
+ntpq -p
+exit
+
+docker inspect cassandra2
+grab the ip (172.17.0.3) and put it into the client.py file
+docker cp client.py cassandra1:/
+docker cp server.py cassandra2:/
+
+docker exec -it cassandra2 bash
+python server.py
+
+docker exec -it cassandra1 bash
+cassandra-stress write
+
+#run cassandra stress
+cassandra-stress write -log level=verbose
+
+(open new tab)
+docker exec -it cassandra1 bash
+python client.py
+
+docker cp cassandra1:/readings.csv ~/Google\ Drive/School/Data\ Systems/project
+
+cassandra-stress read -log level=verbose
+nodetool cfhistograms keyspace1 standard1
+

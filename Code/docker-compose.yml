@@ -1,0 +1,57 @@
+version: '2'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  cassandraClient:
+    build: 
+      context: .
+      dockerfile: DockerClientFile
+    image: bitnami/cassandra:latest
+    container_name: c1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+      - CASSANDRA_SEEDS=cassandra-node1,cassandra-node2
+      # - CASSANDRA_PASSWORD_SEEDER=yes
+      # - CASSANDRA_PASSWORD=password123
+    networks:
+      - app-tier
+    expose:
+      - "7000"
+      - "7199"
+      - "9042"
+      - "9160"
+  ccassandraServer:
+    build: 
+      context: .
+      dockerfile: DockerServerFile
+    image: bitnami/cassandra:latest
+    container_name: c2
+    environment:
+      - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+      - CASSANDRA_SEEDS=cassandra-node1,cassandra-node2
+      # - CASSANDRA_PASSWORD=password123
+    networks:
+      - app-tier
+    expose:
+      - "7000"
+      - "7199"
+      - "9042"
+      - "9160"
+  ntp:
+
+    image: cturra/ntp:latest
+    container_name: ntp
+    restart: on-failure:2
+    ports: 
+      - 123:123/udp
+    expose:
+      - "123"
+    cap_add:
+      - SYS_NICE
+      - SYS_RESOURCE
+      - SYS_TIME
+    networks:
+      - app-tier

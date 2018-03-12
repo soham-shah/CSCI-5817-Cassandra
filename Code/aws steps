@@ -1,0 +1,31 @@
+ssh to the instance:
+
+wget http://apache.claz.org/cassandra/3.11.2/apache-cassandra-3.11.2-bin.tar.gz
+tar -xvf apache-cassandra-3.11.2-bin.tar.gz
+cd apache-cassandra-3.11.2
+PATH=$PATH:/home/ubuntu/apache-cassandra-3.11.2
+
+sudo apt install openjdk-8-jre-headless
+
+modify cassandra.yml
+18.217.202.142,18.220.84.216
+
+sudo apt-get update
+sudo apt install ntp
+nano /etc/ntp.conf
+sudo service ntp start
+sudo ntpq -p
+
+rm cassandra.yaml
+touch cassandra.yaml
+nano cassandra.yaml
+copy in the custom stuff
+
+sudo yum install java-1.8.0
+sudo /usr/sbin/alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+sudo /usr/sbin/alternatives --set javac /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/javac
+sudo yum remove java-1.7
+
+scp -i ~/Downloads/sosh8590KeyPair.pem ~/Downloads/project/assets/server.py  ubuntu@ec2-18-217-202-142.us-east-2.compute.amazonaws.com:~/
+scp -i ~/Downloads/sosh8590KeyPair.pem ~/Downloads/project/assets/client.py  ubuntu@ec2-18-220-84-216.us-east-2.compute.amazonaws.com:~/
+scp -i ~/Downloads/sosh8590KeyPair.pem ubuntu@ec2-18-220-84-216.us-east-2.compute.amazonaws.com:~/readings.csv ~/Downloads/project/assets/
